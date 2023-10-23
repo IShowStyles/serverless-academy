@@ -1,6 +1,7 @@
 # SERVELESS_ACADEMY
-EXAMPLE WEATHER TELEGRAM BOT
+EXAMPLE EXCHANGE TELEGRAM BOT
 # bot in telegram
+`@super444weatherBot`
 ## Environment Variables
 To run this project, you will need to add the following environment variables to your .env file
 `TELEGRAM_BOT_TOKEN=<TELEGRAM_BOT_TOKEN>`
