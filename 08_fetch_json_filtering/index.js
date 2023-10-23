@@ -1,5 +1,7 @@
 const fs = require('fs');
 const path = require('path');
+const fetch = require('node-fetch');
+
 process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
 const arrEndpoints = [
     "https://jsonbase.com/sls-team/json-793",
@@ -23,7 +25,6 @@ const arrEndpoints = [
     "https://jsonbase.com/sls-team/json-350",
     "https://jsonbase.com/sls-team/json-64"
 ]
-const fetch = require('node-fetch');
 
 const getJson = async (url) => {
     const response = await fetch(url);
