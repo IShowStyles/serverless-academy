@@ -3,7 +3,7 @@ const path = require('path');
 const threads = require('worker_threads');
 const {Worker} = threads;
 const filesNames = [];
-
+const start = Date.now();
 const uniqueData = (arr) => (Array.from(new Set(arr)))
 const allDataLength = (arr) => (arr.length)
 const diff = (a, b) => (a - b)
@@ -59,5 +59,6 @@ const main = async () => {
     console.log(`All words : ${allDataLength(data)}`)
     console.log(`Unique words : ${allDataLength(uniqueData(data))}`)
     console.log(`out1-19.txt : ${diff(data.length, lengthFirstFile)}`)
+    console.log(`Execution time: ${Date.now() - start} ms`)
 }
 main()
