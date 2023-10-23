@@ -2,9 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const threads = require('worker_threads');
 const {Worker} = threads;
-
-
 const filesNames = [];
+
+const uniqueData = (arr) => (Array.from(new Set(arr)))
+const allDataLength = (arr) => (arr.length)
 
 const getFilesNames = (dir) => {
     return new Promise((resolve, reject) => {
@@ -26,7 +27,6 @@ const readFileFirstLen = async (file) => {
 
 
 const runWorker = (workerData) => {
-    console.log(filesNames)
     return new Promise((resolve, reject) => {
         const worker = new Worker('./worker.js', {workerData});
         worker.on('message', (data) => {
@@ -39,6 +39,14 @@ const runWorker = (workerData) => {
         })
     })
 }
+const getFullData = async () => {
+    const resultData = [];
+    for (const file of filesNames) {
+        const fileContent = await runWorker(file);
+        resultData.push(...fileContent);
+    }
+    return resultData;
+}
 
 const main = async () => {
     await getFilesNames(path.join(__dirname + '/data'))
@@ -46,10 +54,9 @@ const main = async () => {
             filesNames.push(...files)
         })
     const lengthFirstFile = await readFileFirstLen(filesNames[19])
-    const fileContent = await runWorker(filesNames)
-     console.log(fileContent.length)
-    console.log(uniqueData(fileContent).length)
-    console.log(fileContent.length - lengthFirstFile)
+    const data = await getFullData();
+    console.log(`All words : ${allDataLength(data)}`)
+    console.log(`Unique words : ${allDataLength(uniqueData(data))}`)
+    console.log(`out1-19.txt : ${data.length - lengthFirstFile}`)
 }
-const uniqueData = (arr) => (Array.from(new Set(arr)))
 main()
