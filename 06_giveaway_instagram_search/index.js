@@ -6,6 +6,7 @@ const filesNames = [];
 
 const uniqueData = (arr) => (Array.from(new Set(arr)))
 const allDataLength = (arr) => (arr.length)
+const diff = (a, b) => (a - b)
 
 const getFilesNames = (dir) => {
     return new Promise((resolve, reject) => {
@@ -57,6 +58,6 @@ const main = async () => {
     const data = await getFullData();
     console.log(`All words : ${allDataLength(data)}`)
     console.log(`Unique words : ${allDataLength(uniqueData(data))}`)
-    console.log(`out1-19.txt : ${data.length - lengthFirstFile}`)
+    console.log(`out1-19.txt : ${diff(data.length, lengthFirstFile)}`)
 }
 main()
