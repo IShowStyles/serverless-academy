@@ -3,7 +3,7 @@ const path = require('path');
 const fetch = require('node-fetch');
 
 
-let IS_DONE_COUNT = {
+const IS_DONE_COUNT = {
     done: 0,
     failure: 0
 }
@@ -42,31 +42,34 @@ const getJson = async (url) => {
 }
 
 const binaryTreeSearch = (object, key, endpoint) => {
-    if (!object) return;
-    const arr = Object.keys(object);
-    const res = arr.find((item) => item === key && object[item] === true);
-    if (object[res]) {
-        console.log(res)
-        console.log(object[res])
-        IS_DONE_COUNT.done++;
-        console.log(`[Success] ${endpoint} isDone true`);
+    const keys = Object.keys(object);
+    const res = keys.find((item) => item === key && object[item] === true);
+    if (res === key) {
         return object[res];
     } else {
-        for (let i = 0; i < arr.length; i++) {
-            if (typeof object[arr[i]] === "object") {
-                binaryTreeSearch(object[arr[i]], key, endpoint);
+        for (const key of keys) {
+            if (typeof object[key] === 'object') {
+             return binaryTreeSearch(object[key], "isDone", endpoint);
             }
         }
     }
-}
 
+}
 const main = async () => {
     for (const endpoint of arrEndpoints) {
         const json = await getJson(endpoint);
-        console.log(binaryTreeSearch(json, "isDone", endpoint) === undefined)
-        if (binaryTreeSearch(json, "isDone", endpoint)) {
+        if (!json) {
             IS_DONE_COUNT.failure++;
-            console.log(`[Error] ${endpoint} isDone false`);
+            console.log(`[Failure] Endpoint: ${endpoint} unreachable`);
+            continue;
+        }
+        const isDone = binaryTreeSearch(json, "isDone", endpoint);
+        if (isDone) {
+            IS_DONE_COUNT.done++;
+            console.log(`[Success] Endpoint: ${endpoint} is Done - true`)
+        } else {
+            IS_DONE_COUNT.failure++;
+            console.log(`[Error] Endpoint: ${endpoint} is Done - false`)
         }
     }
     console.log(`Found True values: ${IS_DONE_COUNT.done},\nFound False values: ${IS_DONE_COUNT.failure}`)
