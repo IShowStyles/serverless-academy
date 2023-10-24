@@ -2,7 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const fetch = require('node-fetch');
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
+
+let IS_DONE_COUNT = {
+    done: 0,
+    failure: 0
+}
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 const arrEndpoints = [
     "https://jsonbase.com/sls-team/json-793",
     "https://jsonbase.com/sls-team/json-955",
@@ -13,7 +19,7 @@ const arrEndpoints = [
     "https://jsonbase.com/sls-team/json-770",
     "https://jsonbase.com/sls-team/json-491",
     "https://jsonbase.com/sls-team/json-281",
-    "https://jsonbase.com/sls-team/json-718",
+    "https://jsonbase/.com/sls-team/json-718",
     "https://jsonbase.com/sls-team/json-310",
     "https://jsonbase.com/sls-team/json-806",
     "https://jsonbase.com/sls-team/json-469",
@@ -27,33 +33,43 @@ const arrEndpoints = [
 ]
 
 const getJson = async (url) => {
-    const response = await fetch(url);
-    const json = await response.json();
-    return json;
+    try {
+        const response = await fetch(url);
+        return await response.json();
+    } catch (e) {
+
+    }
 }
 
 const binaryTreeSearch = (object, key, endpoint) => {
+    if (!object) return;
     const arr = Object.keys(object);
     const res = arr.find((item) => item === key && object[item] === true);
-    if (!res) {
-        return console.log(`[Error] ${endpoint} isDone false`);
-    }
-    if (res) {
-        return console.log(`[Success] ${endpoint} isDone true`);
-    }else{
+    if (object[res]) {
+        console.log(res)
+        console.log(object[res])
+        IS_DONE_COUNT.done++;
+        console.log(`[Success] ${endpoint} isDone true`);
+        return object[res];
+    } else {
         for (let i = 0; i < arr.length; i++) {
             if (typeof object[arr[i]] === "object") {
-                binaryTreeSearch(object[arr[i]], key);
+                binaryTreeSearch(object[arr[i]], key, endpoint);
             }
         }
     }
 }
 
 const main = async () => {
-    for await (const endpoint of arrEndpoints) {
+    for (const endpoint of arrEndpoints) {
         const json = await getJson(endpoint);
-        binaryTreeSearch(json, "isDone" , endpoint)
+        console.log(binaryTreeSearch(json, "isDone", endpoint) === undefined)
+        if (binaryTreeSearch(json, "isDone", endpoint)) {
+            IS_DONE_COUNT.failure++;
+            console.log(`[Error] ${endpoint} isDone false`);
+        }
     }
+    console.log(`Found True values: ${IS_DONE_COUNT.done},\nFound False values: ${IS_DONE_COUNT.failure}`)
 }
 main();
 
