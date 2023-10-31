@@ -10,7 +10,7 @@ class AuthService {
   }
 
   async login(req, res) {
-    // console.log({em, ps})
+    const {email, password} = req.body;
     const user = await Pool.queries(SelectQuery('users', {email: email}));
     try {
       if (user.email !== email) {

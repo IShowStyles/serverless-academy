@@ -1,4 +1,4 @@
-import {ConflictException, UnauthorizedException} from "../exceptions/all.exceptions.js";
+import {UnauthorizedException} from "../exceptions/all.exceptions.js";
 import jwt from "jsonwebtoken";
 import Pool from "../db/index.js";
 import {SelectQuery} from "../queries/index.js";
@@ -6,13 +6,20 @@ import {SelectQuery} from "../queries/index.js";
 const {TokenExpiredError} = jwt;
 
 export const checkRequestMiddleware = function (req, res, next) {
-  const password = req.body.password;
-  const email = req.body.email;
-  if (!password || !email) {
-    return new UnauthorizedException('No password or email found');
+  try {
+    const password = req.body.password;
+    const email = req.body.email;
+    if (!password || !email) {
+      throw new UnauthorizedException('No password or email found');
+    }
+    req.token = {password: password, email: email}
+    next()
+  } catch (e) {
+    return res.status(e.status).json({
+      success: false,
+      message: e.message
+    })
   }
-  req.token = {password: password, email: email}
-  next()
 }
 
 export const checkTokenMiddleware = function (req, res, next) {
@@ -33,18 +40,18 @@ export const authMiddleware = async function (req, res, next) {
   const {password, email} = req.body;
   try {
     if (!password) {
-      return new UnauthorizedException('No token found');
+      throw new UnauthorizedException('No token found');
     }
     const data = await Pool.queries(SelectQuery('users', {email: email}));
     if (data?.email !== email) {
-      return new ConflictException('User with this email doesnt exists');
+      return res.status(409).json({
+        success: false,
+        message: 'Wrong email'
+      })
     }
     const passwordFromDb = await jwt.decode(data.refreshtoken, process.env.REFRESH_TOKEN_SECRET);
     if (passwordFromDb?.password !== password) {
-      return res.status(409).json({
-        success: false,
-        message: 'Wrong password'
-      })
+      throw new UnauthorizedException('Wrong password');
     }
     const accessToken = data.accesstoken.toString();
     await jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
@@ -55,7 +62,7 @@ export const authMiddleware = async function (req, res, next) {
         }
       }
       if (decoded) {
-        return res.status(200).json({
+        return res.status(201).json({
           success: true,
           date: {
             id: data.id,
