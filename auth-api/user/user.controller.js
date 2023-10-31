@@ -1,6 +1,6 @@
 import express from "express";
 import UserService from "./user.service.js";
-import {checkTokenMiddleware} from "../middleware/bearer.middleware.js";
+import {checkTokenMiddleware} from "../middleware/auth.middleware.js";
 
 const userController = express.Router();
 
